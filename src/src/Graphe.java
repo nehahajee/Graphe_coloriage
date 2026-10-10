@@ -87,9 +87,66 @@ public class Graphe {
 
 
 
-    void main() {
-        //int[][] matAdj1 = new int[6][6];
-        //int[][] matAdj2 = new int[4][4];
+    void simplifier(int k){
+        while (sommetPile<n) {
+            int s = trouverSommetSimplifiable(k);
+            if (s==-1) {
+                s = choisirSommetASpiller();
+            }
+            retirerSommet(s);
+        }
+    }
+
+
+    int choisirCouleur(int s, int k){
+        boolean[] interdite = new boolean[k];
+        for (int j=0; j<n; j++) {
+            if (matAdj[s][j]==1 && couleurs[j]!=-1) {
+                interdite[couleurs[j]]=true;
+            }
+        }
+        for (int j=0; j<n; j++) {
+            if (matAdj[s][j]==2 && couleurs[j]!=-1 && interdite[couleurs[j]]==false) {
+                return couleurs[j];
+            }
+        }
+        for (int c=0; c<k; c++) {
+            if (interdite[c]==false) {
+                return c;
+            }
+        }
+        return -1;
+    }
+
+    void selectionner(int k){
+        while (sommetPile>0) {
+            sommetPile--;
+            int s = pile[sommetPile];
+            couleurs[s] = choisirCouleur(s, k);
+        }
+    }
+
+    int[] chaitin(int k){
+        Arrays.fill(couleurs, -1);
+        Arrays.fill(retire, false);
+        sommetPile = 0;
+        calculerDegres();
+        simplifier(k);
+        selectionner(k);
+        return couleurs;
+    }
+
+    void afficher(){
+        for (int i=0; i<n; i++) {
+            if (couleurs[i]==-1) {
+                System.out.println(noms[i] + " : spill");
+            } else {
+                System.out.println(noms[i] + " : couleur " + couleurs[i] + " ($t" + couleurs[i] + ")");
+            }
+        }
+    }
+
+    public static void main(String[] args) {
         String[] noms1 = new String[]{"x", "y", "z", "t", "u", "v"};
         Graphe g1 = new Graphe(noms1);
 
@@ -108,6 +165,18 @@ public class Graphe {
         g2.ajouterArete( 0, 2, 1);
         g2.ajouterArete( 1, 3, 1);
         g2.ajouterArete( 2, 3, 1);
+
+        System.out.println("Graphe 1, k=3");
+        g1.chaitin(3);
+        g1.afficher();
+
+        System.out.println("Graphe 1, k=2");
+        g1.chaitin(2);
+        g1.afficher();
+
+        System.out.println("Graphe 2, k=2");
+        g2.chaitin(2);
+        g2.afficher();
 
     }
 }
